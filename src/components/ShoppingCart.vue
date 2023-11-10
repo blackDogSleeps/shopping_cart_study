@@ -8,20 +8,15 @@
       >
         {{ product.title }} — {{ product.price | currency }} — {{ product.quantity }}
         <button
-          @click="$store.dispatch(
-            'decreaseProductAmount',
-            product)"
+          @click="decreaseProductAmount(product)"
           class="btn">-</button>
         <button
-          @click="$store.dispatch(
-            'increaseProductAmount',
-            product)"
+          :disabled="!inStock(product)"
+          @click="increaseProductAmount(product)"
           class="btn">+</button>
         <button
           class="btn"
-          @click="$store.dispatch(
-            'removeProductFromCart',
-            product)"
+          @click="removeProductFromCart(product)"
         >Remove</button>
       </li>
     </ul>
@@ -30,29 +25,54 @@
     </p>
     <button
       v-if="!cartIsEmpty"
-      @click="$store.dispatch('checkout')"
+      @click="checkout"
     >
       Checkout
     </button>
-    <p v-if="$store.state.setCheckoutStatus">
-      {{ $store.state.setCheckoutStatus }}
+    <p v-if="checkoutStatus">
+      {{ checkoutStatus }}
     </p>
   </div>
 </template>
 
 <script>
+import { mapState, mapGetters, mapActions } from 'vuex';
+
 export default {
   computed: {
-    products() {
-      return this.$store.getters.productsInCart;
-    },
+    ...mapGetters('cart', {
+      products: 'productsInCart',
+      cartTotal: 'cartTotal',
+      productInStock: 'productInStock',
+    }),
+
+    ...mapGetters('products', {
+      availableProducts: 'availableProducts',  
+    }),
+    
+    ...mapState({
+      cart: state => state.cart.cart,
+      checkoutStatus: state => state.cart.checkoutStatus,
+    }),
 
     cartIsEmpty() {
-      return this.$store.state.cart.length < 1;
+      return this.cart.length < 1;
     },
+  },
 
-    cartTotal() {
-      return this.$store.getters.cartTotal;
+  methods: {
+    ...mapActions('cart', {
+      checkout: 'checkout',
+      decreaseProductAmount: 'decreaseProductAmount',
+      increaseProductAmount: 'increaseProductAmount',
+      removeProductFromCart: 'removeProductFromCart',
+    }),
+
+    inStock(product) {
+      const cartItem = this.availableProducts.find(
+        (item) => item.id === product.id
+      );
+      return this.productInStock(cartItem);
     },
   },
 }

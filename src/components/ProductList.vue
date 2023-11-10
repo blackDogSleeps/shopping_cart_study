@@ -14,6 +14,7 @@
           {{ product.inventory }}
         </b>
         <button
+          :disabled="!productInStock(product)"
           @click="addProductToCart(product)"  
         >Add to cart</button>
       </li>
@@ -23,28 +24,35 @@
 </template>
 
 <script>
+import { mapState, mapGetters, mapActions } from 'vuex';
+
 export default {
   data() {
     return {
       loading: false,
     }
   },
-
+   
   computed: {
-  products() {
-      return this.$store.getters.availableProducts;
-    },
+    ...mapState({
+      products: state => state.products.products,
+    }),
+
+    ...mapGetters({
+      productInStock: 'cart/productInStock',
+    }),
   },
 
   methods: {
-    addProductToCart(product) {
-      this.$store.dispatch('addProductToCart', product);
-    }
+    ...mapActions({
+      fetchProducts: 'products/fetchProducts',
+      addProductToCart: 'cart/addProductToCart',
+    }),
   },
-
+  
   created() {
     this.loading = true;
-    this.$store.dispatch('fetchProducts')
+    this.fetchProducts()
       .then(() => this.loading = false);
   }
 }
