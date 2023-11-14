@@ -1,7 +1,6 @@
 <template>
   <div>
     <h1>Product List</h1>
-    {{ products }}
     <img
       v-if="loading"
       src="https://i.imgur.com/JfPpwOA.gif">
