@@ -43,7 +43,6 @@ export default {
     ...mapGetters('cart', {
       products: 'productsInCart',
       cartTotal: 'cartTotal',
-      productInStock: 'productInStock',
     }),
 
     ...mapGetters('products', {
@@ -70,9 +69,9 @@ export default {
 
     inStock(product) {
       const cartItem = this.availableProducts.find(
-        (item) => item.id === product.id
+        item => item.id === product.id
       );
-      return this.productInStock(cartItem);
+      return cartItem.inventory > 0;
     },
   },
 }

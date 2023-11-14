@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>Product List</h1>
+    {{ products }}
     <img
       v-if="loading"
       src="https://i.imgur.com/JfPpwOA.gif">
@@ -14,7 +15,7 @@
           {{ product.inventory }}
         </b>
         <button
-          :disabled="!productInStock(product)"
+          :disabled="!isInStock(product)"
           @click="addProductToCart(product)"  
         >Add to cart</button>
       </li>
@@ -24,7 +25,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   data() {
@@ -37,10 +38,6 @@ export default {
     ...mapState({
       products: state => state.products.products,
     }),
-
-    ...mapGetters({
-      productInStock: 'cart/productInStock',
-    }),
   },
 
   methods: {
@@ -48,6 +45,10 @@ export default {
       fetchProducts: 'products/fetchProducts',
       addProductToCart: 'cart/addProductToCart',
     }),
+
+    isInStock(product) {
+      return product.inventory > 0;
+    },
   },
   
   created() {

@@ -6,6 +6,7 @@ const _products = [
 
 export default {
   getProducts (cb) {
+    // _products.map(product => product.isInStock = true);
     setTimeout(() => cb(_products), 300)
   },
 

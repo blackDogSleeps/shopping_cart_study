@@ -22,12 +22,6 @@ export default {
       });
     },
 
-    productInStock() {
-      return (product) => {
-        return product.inventory > 0;
-      };
-    },
-
     cartTotal(state, getters) {
       let total = 0;
 
@@ -39,15 +33,24 @@ export default {
   },
 
   actions: {
-    addProductToCart({ state, commit, getters }, product) {
-      if (getters.productInStock(product)) {
+    addProductToCart({ state, commit, rootState }, product) {
+      if (product.inventory > 0) {
         const cartItem = state.cart.find(item => item.id === product.id);
         if (!cartItem) {
           commit('pushProductToCart', product.id);
         } else {
           commit('incrementItemQuantity', cartItem);
         }
-        commit('decrementProductInventory', product);
+        const existingProduct = rootState.products.products
+          .find(item => item.id === product.id);
+        
+          if (existingProduct.inventory > 0) {
+          commit(
+            'products/decrementProductInventory', 
+            existingProduct,
+            { root: true }); 
+        }
+        
       }
     },
 
@@ -60,9 +63,9 @@ export default {
         (item) => item.id === product.id); 
       
       commit(
-        'replenishProductInventory',
-        { item, 
-          product },
+        'products/replenishProductInventory',
+        { item, product },
+        { root: true }
         );
     },
 
@@ -76,16 +79,19 @@ export default {
       if (cartItem.quantity <= 1) {
         this.dispatch('cart/removeProductFromCart', product);
       } else {
-        commit('decrementItemQuantity', cartItem);
         commit(
-          'incrementProductInventory',
+          'decrementItemQuantity', 
+          cartItem);
+        commit(
+          'products/incrementProductInventory',
           productsItem,
+          { root: true }
         );
       }
       
     },
 
-    increaseProductAmount({state, commit, getters, rootState}, product) {
+    increaseProductAmount({state, commit, rootState}, product) {
       const cartItem = state.cart.find(
         (item) => item.id === product.id
       );
@@ -93,9 +99,14 @@ export default {
         (item) => item.id === product.id
       );
 
-      if (cartItem && getters.productInStock(productsItem)) {
-        commit('incrementItemQuantity', cartItem);
-        commit('decrementProductInventory', productsItem);
+      if (cartItem && productsItem.inventory > 0) {
+        commit(
+          'incrementItemQuantity', 
+          cartItem,);
+        commit(
+          'products/decrementProductInventory', 
+          productsItem,
+          { root: true });
       }
     },
 
@@ -122,23 +133,11 @@ export default {
     },
 
     decrementItemQuantity(state, cartItem) {
-      cartItem.quantity--;
+      state.cart.find(item => item.id === cartItem.id).quantity--;
     },
 
     incrementItemQuantity(state, cartItem) {
-      cartItem.quantity++;
-    },
-
-    replenishProductInventory(state, dict) {
-      dict.item.inventory += dict.product.quantity;
-    },
-
-    decrementProductInventory(state, product) {
-      product.inventory--;
-    },
-
-    incrementProductInventory(state, product) {
-      product.inventory++;
+      state.cart.find(item => item.id === cartItem.id).quantity++;
     },
 
     removeFromCart(state, refreshedCart) {
