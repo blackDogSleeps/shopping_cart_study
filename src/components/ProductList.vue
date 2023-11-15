@@ -35,14 +35,13 @@ export default {
    
   computed: {
     ...mapState({
-      // products: state => state.products.products,
       products: state => {
-        return state.products.products.map(
-          product => ({
+        return state.products.products
+          .map(product => ({
             ...product,
             isInStock: product.inventory > 0,
           })
-        )
+          ) 
       },
     }),
   },

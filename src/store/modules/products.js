@@ -15,8 +15,6 @@ export default {
 
   actions: {
     fetchProducts({ commit }) {
-      // make AJAX call
-      // call setProducts() mutation
       return new Promise(
         (resolve) => {
           shop.getProducts(products => {
@@ -26,16 +24,10 @@ export default {
         }
       );
     },
-
-    isInStock({getters}, product) {
-      return getters.availableProducts
-        .find(item => item.id === product.id).inventory === 0;
-    }
   },
 
   mutations: {
     setProducts(state, products) {
-      // update the state and set the projects array
       state.products = products;
     },
 
@@ -59,11 +51,11 @@ export default {
 
     replenishProductInventory(state, dict) {
       const existingProduct = state.products
-        .find(item => item.id === dict.item.id);
+        .find(item => item.id === dict.productInStock.id);
       if (!existingProduct) {
         return;
       }
-      existingProduct.inventory += dict.product.quantity;
+      existingProduct.inventory += dict.productToRemove.quantity;
     },
   },
 }

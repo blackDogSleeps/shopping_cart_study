@@ -35,7 +35,7 @@ export default {
 
   actions: {
     addProductToCart({ state, commit, rootState }, product) {
-      if (product.inventory > 0) {
+      if (product.isInStock) {
         const cartItem = state.cart.find(item => item.id === product.id);
         if (!cartItem) {
           commit('pushProductToCart', product.id);
@@ -45,7 +45,7 @@ export default {
         const existingProduct = rootState.products.products
           .find(item => item.id === product.id);
         
-          if (existingProduct.inventory > 0) {
+          if (existingProduct.isInStock) {
           commit(
             'products/decrementProductInventory', 
             existingProduct,
@@ -55,28 +55,27 @@ export default {
       }
     },
 
-    removeProductFromCart({ state, commit, rootState }, product) {
-      commit('removeFromCart', state.cart.filter(
-          (item) => item.id !== product.id
-      ));
+    removeProductFromCart({ state, commit, rootState }, productToRemove) {
+      commit('removeFromCart', state.cart
+        .filter((item) => item.id !== productToRemove.id));
 
-      const item = rootState.products.products.find(
-        (item) => item.id === product.id); 
+      const productInStock = rootState.products.products
+        .find((item) => item.id === productToRemove.id); 
       
       commit(
         'products/replenishProductInventory',
-        { item, product },
+        { productInStock, productToRemove },
         { root: true }
-        );
+      );
     },
 
     decreaseProductAmount({ state, commit, rootState }, product) {
-      const cartItem = state.cart.find(
-        (item) => item.id === product.id
-      );
-      const productsItem = rootState.products.products.find(
-        (item) => item.id === product.id
-      );
+      const cartItem = state.cart
+      .find((item) => item.id === product.id);
+
+      const productsItem = rootState.products.products
+        .find((item) => item.id === product.id);
+
       if (cartItem.quantity <= 1) {
         this.dispatch('cart/removeProductFromCart', product);
       } else {
@@ -93,14 +92,13 @@ export default {
     },
 
     increaseProductAmount({state, commit, rootState}, product) {
-      const cartItem = state.cart.find(
-        (item) => item.id === product.id
-      );
-      const productsItem = rootState.products.products.find(
-        (item) => item.id === product.id
-      );
+      const cartItem = state.cart
+        .find((item) => item.id === product.id);
 
-      if (cartItem && productsItem.inventory > 0) {
+      const productsItem = rootState.products.products
+        .find((item) => item.id === product.id);
+
+      if (cartItem && productsItem.isInStock) {
         commit(
           'incrementItemQuantity', 
           cartItem,);
@@ -162,8 +160,5 @@ export default {
     setCheckoutStatus(state, status) {
       state.checkoutStatus = status;
     },
-
   },
-
-
 }
