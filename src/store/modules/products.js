@@ -40,21 +40,30 @@ export default {
     },
 
     decrementProductInventory(state, product) {
-      state.products
-        .find(item => item.id === product.id)
-          .inventory--;
+      const existingProduct = state.products
+        .find(item => item.id === product.id);
+      if (!existingProduct) {
+        return;
+      }
+      existingProduct.inventory -= 1;
     },
 
     incrementProductInventory(state, product) {
-      state.products
-        .find(item => item.id === product.id)
-          .inventory++;
+      const existingProduct = state.products
+        .find(item => item.id === product.id);
+      if (!existingProduct) {
+        return;
+      }
+      existingProduct.inventory += 1;
     },
 
     replenishProductInventory(state, dict) {
-      state.products
-        .find(item => item.id === dict.item.id)
-          .inventory += dict.product.quantity;
+      const existingProduct = state.products
+        .find(item => item.id === dict.item.id);
+      if (!existingProduct) {
+        return;
+      }
+      existingProduct.inventory += dict.product.quantity;
     },
   },
 }

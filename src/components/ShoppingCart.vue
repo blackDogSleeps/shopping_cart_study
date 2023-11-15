@@ -11,7 +11,7 @@
           @click="decreaseProductAmount(product)"
           class="btn">-</button>
         <button
-          :disabled="!inStock(product)"
+          :disabled="!product.isInStock"
           @click="increaseProductAmount(product)"
           class="btn">+</button>
         <button
@@ -66,13 +66,6 @@ export default {
       increaseProductAmount: 'increaseProductAmount',
       removeProductFromCart: 'removeProductFromCart',
     }),
-
-    inStock(product) {
-      const cartItem = this.availableProducts.find(
-        item => item.id === product.id
-      );
-      return cartItem.inventory > 0;
-    },
   },
 }
 

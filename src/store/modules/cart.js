@@ -18,6 +18,7 @@ export default {
           title: product.title,
           price: product.price,
           quantity: cartItem.quantity,
+          isInStock: product.inventory > 0,
         };
       });
     },
@@ -133,11 +134,21 @@ export default {
     },
 
     decrementItemQuantity(state, cartItem) {
-      state.cart.find(item => item.id === cartItem.id).quantity--;
+      const product = state.cart.find(
+        item => item.id === cartItem.id);
+      if (!product) {
+        return;
+      }
+      product.quantity -= 1;
     },
 
     incrementItemQuantity(state, cartItem) {
-      state.cart.find(item => item.id === cartItem.id).quantity++;
+      const product = state.cart.find(
+        item => item.id === cartItem.id);
+      if (!product) {
+        return;
+      }
+      product.quantity += 1;
     },
 
     removeFromCart(state, refreshedCart) {

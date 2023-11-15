@@ -14,7 +14,7 @@
           {{ product.inventory }}
         </b>
         <button
-          :disabled="!isInStock(product)"
+          :disabled="!product.isInStock"
           @click="addProductToCart(product)"  
         >Add to cart</button>
       </li>
@@ -35,7 +35,15 @@ export default {
    
   computed: {
     ...mapState({
-      products: state => state.products.products,
+      // products: state => state.products.products,
+      products: state => {
+        return state.products.products.map(
+          product => ({
+            ...product,
+            isInStock: product.inventory > 0,
+          })
+        )
+      },
     }),
   },
 
@@ -44,10 +52,6 @@ export default {
       fetchProducts: 'products/fetchProducts',
       addProductToCart: 'cart/addProductToCart',
     }),
-
-    isInStock(product) {
-      return product.inventory > 0;
-    },
   },
   
   created() {
